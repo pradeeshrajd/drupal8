@@ -1,1 +1,1 @@
-# drupal8
+# Deliver node information in feed format
