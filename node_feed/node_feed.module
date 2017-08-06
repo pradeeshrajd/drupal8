@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ * Alter the site information form to accomodate one more element and
+ * handles an addional submit function for it.
+ */
+
+use \Drupal\Core\Form\FormStateInterface;
+use \Drupal\Core\StringTranslation\TranslatableMarkup;
+
+/**
+ * Implements hook_form_alter().
+ */
+function node_feed_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id == 'system_site_information_settings') {
+
+    // Get the readable configuration object.
+    $site_config = \Drupal::config('system.site');
+    $site_api_key_value = ($site_config->get('siteapikey') != '') ? $site_config->get('siteapikey')
+      : 'No API Key yet';
+
+    // Create new text element to store the api key.
+    $site_api_key_element = array(
+      '#type' => 'textfield',
+      '#title' => 'Site API Key',
+      '#default_value' => $site_api_key_value,
+    );
+
+    // Add the newly created element to the form.
+    $form['site_information']['site_api_key'] = $site_api_key_element;
+
+    if ($site_api_key_value != 'No API Key yet') {
+      $markup_obj = new TranslatableMarkup('Update Configuration');
+      $form['actions']['submit']['#value'] =  $markup_obj;
+    }
+
+    // Set a new custom submit handle to store the site api key value.
+    $form['actions']['submit']['#submit'][] = '_node_feed_site_settings_form_submit';
+  }
+}
+
+/**
+ * Additonal submission hanlder for the site information form. Set the site api key value.
+ */
+function _node_feed_site_settings_form_submit(&$form, FormStateInterface $form_state, $form_id) {
+  $site_api_key_form_value =  $form_state->getValue('site_api_key');
+
+  if ($site_api_key_form_value != 'No API Key yet') {
+    // Get the editable configuration object.
+    $config = \Drupal::service('config.factory')->getEditable('system.site');
+    // Set and save the new site key value value.
+    $config->set('siteapikey', $site_api_key_form_value)->save();
+
+    // Display the message.
+    if ($site_api_key_form_value) {
+      drupal_set_message(t('Site API Key is set to :key', array(':key' => $site_api_key_form_value)));
+    }
+  }
+}

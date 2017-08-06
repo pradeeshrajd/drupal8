@@ -1,0 +1,6 @@
+node_feed_feed:
+  path: 'page_json/{site_key}/{node_id}'
+  defaults:
+    _controller: '\Drupal\node_feed\Controller\NodeFeedController::feed'
+  requirements:
+    _permission: 'access content'

@@ -1,0 +1,5 @@
+name: Node feed
+type: module
+description: 'Deliver node information in feed format.'
+package: Custom
+core: 8.x
